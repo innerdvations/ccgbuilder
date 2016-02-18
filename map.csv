@@ -1,0 +1,14 @@
+key,value
+red,img/red.png
+orange,img/orange.png
+yellow,img/yellow.png
+top,110
+left,110
+middle,200
+right,300
+bottom,600
+colorwidth,125
+fullcolorheight,750
+halfcolorheight,350
+cardheight,1125
+cardwidth,600

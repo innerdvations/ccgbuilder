@@ -1,0 +1,19 @@
+type,val,source_header,posX,posY,width,height,align,color,font,wrap
+canvas,,,,,600,1125,,,,
+image,,img:primary,200,110,,,left,,,
+text,,color,800,110,,,left,#FF0000,20px Impact,TRUE
+text,Copyright Me 2016,,1000,200,,,center,#000000,12px Impact,FALSE
+_notes,"Use either val or source_header, not both.  source_header will look up a value in the current item's row with the same header, while value will just use exactly what is written",,,,,,,,,
+_notes,"All types that begin with _ are ignored, so can be used to store variables and used with formulas (vlookup, sum, etc)",,,,,,,,,
+_notes,"Any unexpected value (such as a string in posX,posY,width,height or an align other than left,right,center) will instead assume the value is the name of a header to lookup in the current item, just like source_header",,,,,,,,,
+_notes,"For example, if canvas width and height depend on the current item, add a column to the other sheet called ""cardwidth"" and ""cardheight"" and then put ""cardwidth"" under canvas width and ""cardheight"" for canvas height",,,,,,,,,
+_notes,Width and height fields will scale the item to specific dimensions. Leave blank to avoid scaling.,,,,,,,,,
+_middle,200,,,,,,,,,
+_top,110,,,,,,,,,
+_left,110,,,,,,,,,
+_right,302,,,,,,,,,
+_bottom,600,,,,,,,,,
+_imgheight,350,,,,,,,,,
+_imgwidth,100,,,,,,,,,
+_width,600,,,,,,,,,
+_height,1125,,,,,,,,,

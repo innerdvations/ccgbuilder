@@ -135,16 +135,16 @@ var cardgen = {
     var out = fs.createWriteStream(outname)
       , stream = canvas.pngStream();
 
+    console.log("starting file op, save to "+outname);
     stream.on('data', function(chunk){
+      console.log("ondata");
       out.write(chunk);
     });
 
     stream.on('end', function(){
       console.log('saved png ' + outname);
     });
-
   },
-  
 };
 
 module.exports = cardgen;

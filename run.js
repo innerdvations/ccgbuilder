@@ -20,9 +20,4 @@ function csvParseSync(csvData, options){
 var layout = csvParseSync(fs.readFileSync(__dirname+'/layout.csv'), {columns:true});
 var items = csvParseSync(fs.readFileSync(__dirname+'/items.csv'), {columns:true});
 
-try {
-  cardgen.merge(layout, items);
-}
-catch(e) {
-  console.log("Error:"+e);
-}
+cardgen.merge(layout, items);

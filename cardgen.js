@@ -4,18 +4,11 @@ var fs = require('fs');
 
 var cardgen = {
   merge: function(layout, db) {
-    //var i, j, replace = {}, out = [];
-    //// rewrite map as an object instead of array
-    //for(i in map) {
-    //  replace[map[i].key] = map[i].value;
-    //}
-    
-    // break layout into objects and config, with replacements
+    // break layout into config and loopable object array
     var objects = [];
     var canvas_prop;
     var row;
     
-    // crunch layout csv into loopable object
     for(i in layout) {
       row = layout[i];
       if(row.type === "image") {
@@ -39,41 +32,34 @@ var cardgen = {
     if(!canvas_prop) throw "missing canvas properties";
     if(!objects.length) throw "no objects to generate image from";
     
-    //console.log("layout");
-    //console.log(layout);
-    //console.log("db");
-    //console.log(db);
-    //console.log("layout");
-    //console.log(layout);
-    //console.log("canvas_prop");
-    //console.log(canvas_prop);
-    
     // loop through database to generate cards
     for(i in db) {
-      try {
         var res = this.mergeOne(canvas_prop, objects, db[i]);
-      }
-      catch(e) {
-        console.log("error:"+e);
-      }
     }
+  },
+  propNumVal: function(field, item, prop) {
+    // check if it's already just a simple numerical value
+    var val = Number(prop[field]);
+    if(!isNaN(val) && val !== null) return val;
     
+    val = Number(this.propStrVal(field, item, prop));
+    if(!isNaN(val) && val !== null) return val;
+    
+    return null;
   },
-  numProp: function(value, item) {
-    var num = parseFloat(value);
-    if(!isNaN(num) && num == value) { // make sure it's a number, and it's the same as the string (ie, 40 == "40", but 40 != "40years")
-      return num;
-    }
-    if(isNaN(num)) {
-      num =  item[value];
-      if(isNaN(num)) return null;
-      return num;
-    }
+  propStrVal: function(field, item, prop) {
+    var val = prop[field];
+    
+    if(this.isSpecialVal(val)) return this.calcSpecialVal(val, item);
+    else if(item.hasOwnProperty(val)) return item[val];
+    else return val;
   },
-  propSrcVal: function(prop, item) {
-    if(prop.val) return props.val;
-    if(!prop.source_header) throw "missing val or source_header for prop type "+prop.type;
-    return item[prop.source_header];
+  isSpecialVal: function(val) {
+    var specials = ["center","right","left","top","bottom"];
+    return specials.indexOf(val) > -1;
+  },
+  calcSpecialVal: function(prop, item) {
+    return "111"; // TODO
   },
   exists: function(file) {
     var flag = true;
@@ -85,27 +71,49 @@ var cardgen = {
     return flag;
   },
   addImage: function(prop, item, ctx) {
+    if(!item) throw "missing item";
+    
     var graphic = new Image;
-    graphic.src = this.propSrcVal(prop, item);
+    graphic.src = this.propStrVal("val", item, prop);
     if(!this.exists(graphic.src)) throw "missing image:"+graphic.src;
     
-    var x = this.numProp(prop.posX, item);
-    var y =  this.numProp(prop.posY, item);
-    var width = this.numProp(prop.width, item);
-    var height = this.numProp(prop.height, item);
+    var x = this.propNumVal("posX", item, prop);
+    var y =  this.propNumVal("posY", item, prop);
+    var width = this.propNumVal("width", item, prop);
+    var height = this.propNumVal("height", item, prop);
+    
     if(!x) x = 0;
     if(!y) y = 0;
     if(!width) width = graphic.width;
     if(!height) height = graphic.height;
     console.log("drawing "+graphic.src+" at "+x+","+y+"::"+width+","+height);
+    
     ctx.drawImage(graphic, x, y, width, height);
   },
   addText: function(prop, item, ctx) {
+    return;
     
+    var graphic = new Image;
+    
+    var x = this.propNumVal("posX", item, prop);
+    var y =  this.propNumVal("posY", item, prop);
+    var text = this.propStrVal("val", item, prop);
+    var font = this.propStrVal("font", item, prop);
+    var color = this.propStrVal("color", item, prop);
+    
+    if(!font) font = "12px Comic Sans MS";
+    if(text === null) throw "text not found";
+    if(!x) throw "missing x for text";
+    if(!y) throw "missing y for text";
+    
+    console.log("adding text '"+text+"' at "+x+","+y); 
+    ctx.strokeStyle = color;
+    ctx.font = "60px Comic Sans MS";
+    ctx.fillText(text, x, y);
   },
   mergeOne: function(canvas_prop, properties, item) {
-    var canvasWidth = this.numProp(canvas_prop.width, item);
-    var canvasHeight = this.numProp(canvas_prop.height, item);
+    var canvasWidth = this.propNumVal("width", item, canvas_prop);
+    var canvasHeight = this.propNumVal("height", item, canvas_prop);
     var canvas = new Canvas(canvasWidth, canvasHeight);
     var ctx = canvas.getContext('2d');
     ctx.globalCompositeOperation = "source-over";

@@ -3,6 +3,7 @@ var Image = Canvas.Image;
 var fs = require('fs');
 
 var cardgen = {
+  errorMode: "delete", // "break" skips saving of images with problems, "continue" generates and saves them best as possible, "delete" skips saving and deletes any file with the given item's filename
   merge: function(layout, db) {
     // break layout into config and loopable object array
     var objects = [];
@@ -34,7 +35,12 @@ var cardgen = {
     
     // loop through database to generate cards
     for(i in db) {
+      try {
         var res = this.mergeOne(canvas_prop, objects, db[i]);
+      }
+      catch(e) {
+        console.log("Error: "+e);
+      }
     }
   },
   propNumVal: function(field, item, prop) {
@@ -87,12 +93,9 @@ var cardgen = {
     if(!width) width = graphic.width;
     if(!height) height = graphic.height;
     console.log("drawing "+graphic.src+" at "+x+","+y+"::"+width+","+height);
-    
     ctx.drawImage(graphic, x, y, width, height);
   },
   addText: function(prop, item, ctx) {
-    return;
-    
     var graphic = new Image;
     
     var x = this.propNumVal("posX", item, prop);
@@ -112,37 +115,45 @@ var cardgen = {
     ctx.fillText(text, x, y);
   },
   mergeOne: function(canvas_prop, properties, item) {
+    var o, prop, filename, pngstream, outstream;
+    
+    // create canvas
     var canvasWidth = this.propNumVal("width", item, canvas_prop);
     var canvasHeight = this.propNumVal("height", item, canvas_prop);
     var canvas = new Canvas(canvasWidth, canvasHeight);
     var ctx = canvas.getContext('2d');
     ctx.globalCompositeOperation = "source-over";
 
-    var prop;
-    for(var o in properties) {
+    if(!item.filename) throw "missing filename";
+    filename = __dirname + "/" + item.filename;
+    
+    for(o in properties) {
       prop = properties[o];
       if(prop.type === "image") {
-        this.addImage(prop, item, ctx);
-      }
-      else if(prop.type === "text") {
-        this.addText(prop, item, ctx);
+        try {
+          this.addImage(prop, item, ctx);
+        }
+        catch(e) { // we'll catch and keep going so we can generate
+          if(this.errorMode === "continue") console.log("Error: "+e);
+          if(this.errorMode === "delete") {
+            fs.unlinkSync(filename);
+            throw e;
+          }
+          if(true || this.errorMode === "break") throw e;
+        }
       }
     }
     
-    var filename = item.filename;
-    if(!filename) throw "missing filename";
-    var outname = __dirname + "/" + item.filename;
-    var out = fs.createWriteStream(outname)
-      , stream = canvas.pngStream();
+    outstream = fs.createWriteStream(filename)
+    pngstream = canvas.pngStream();
 
-    console.log("starting file op, save to "+outname);
-    stream.on('data', function(chunk){
-      console.log("ondata");
-      out.write(chunk);
+    console.log("starting file op, save to "+filename);
+    pngstream.on('data', function(chunk){
+      outstream.write(chunk);
     });
 
-    stream.on('end', function(){
-      console.log('saved png ' + outname);
+    pngstream.on('end', function(){
+      console.log('saved png ' + filename);
     });
   },
 };

@@ -1,4 +1,3 @@
-var Promise = require('bluebird');
 var csv = require('csv');
 var fs = require('fs');
 var cardgen = require('./cardgen.js');

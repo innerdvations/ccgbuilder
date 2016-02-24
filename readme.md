@@ -41,10 +41,18 @@ ccgbuilder.merge(layout, items);
 
 ## Layout
 
+If using csv import, ensure that the document is consistent, valid csv, and error-free and contains exactly the headers listed below in layout properties/headers.
+
+If you're passing in a JSON object of your own, make sure that it contains nothing but an array of objects with keys equal to the layout properties/headers listd below. For example:
+
+````
+[{filename:"red.png", cardtext:"this one is red", textcolor:"#FF0000"},
+{filename:"blue.png", cardtext:"this one is blue", textcolor:"#0000FF"}]
+````
+
 Here is an example Google Spreadsheet that can be used as a starting point for your own data.
 
 Any cell can be a) an empty field, b) a reserved term [center, left, right, top, bottom, width, height], c) a column header from the item document, d) a numeric value, or e) a string value, checked for and used in that order. None of the reserved terms should be used as column headers in your database document.
-
 
 
 ### Layout properties / headers
@@ -163,6 +171,19 @@ Not fully implemented. Better to just load premade images.  Use at your own risk
 #### html
 Not yet implemented.
 
+
+## Database document / items
+
+If using csv import, the database document must contain a header row with no blank or duplicate headers, and one column called 'filename' that contains the filename to use for that item for the final generated image.
+
+You can put whatever data you want in the document, just ensure that it is consistent, valid csv, and error-free.
+
+If you're passing in a JSON object of your own, make sure that it contains nothing but an array of objects with keys equal to headers. For example:
+
+````
+[{filename:"red.png", cardtext:"this one is red", textcolor:"#FF0000"},
+{filename:"blue.png", cardtext:"this one is blue", textcolor:"#0000FF"}]
+````
 
 ## Future Goals
 The project is currently unstable as features are added.  The project will be considered stable and feature complete once it can generate sufficiently complex images for a game such as Magic: The Gathering cards without clunky workarounds.

@@ -424,19 +424,20 @@ var cardgen = {
       }
       catch(e) { // we'll catch and keep going so we can generate
         if(this.errorMode === "continue") console.log("Error: "+e);
-        if(this.errorMode === "delete") {
+        else if(this.errorMode === "delete") {
           if(this.exists(filename)) fs.unlinkSync(filename);
           throw e;
         }
-        if(true || this.errorMode === "break") throw e;
+        else if(true || this.errorMode === "break") throw e; // default
       }
     }
+    
+    // draw everything from stage
     stage.update();
     
     outstream = fs.createWriteStream(filename)
     pngstream = canvas.pngStream();
     
-    console.log("starting file op, save to "+filename);
     pngstream.on('data', function(chunk){
       outstream.write(chunk);
     });

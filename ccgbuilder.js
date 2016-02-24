@@ -190,28 +190,28 @@ var cardgen = {
   },
   // TODO
   addSquare: function(prop, item, canvas, stage) {
-  //  var graphic = new createjs.Shape();
-  //  var x = this.propNumVal("x", item, prop, canvas, graphic);
-  //  var y =  this.propNumVal("y", item, prop, canvas, graphic);
-  //  var width = this.propNumVal("width", item, prop, canvas, graphic);
-  //  var height = this.propNumVal("height", item, prop, canvas, graphic);
-  //  graphic.graphics.beginFill("DeepSkyBlue").drawRect(0, 0, width, height);
-  //  
-  //  var regX = this.propNumVal("regX", item, prop, canvas, graphic);
-  //  var regY =  this.propNumVal("regY", item, prop, canvas, graphic);
-  //  var offsetX = this.propNumVal("offsetX", item, prop, canvas, graphic);
-  //  var offsetY =  this.propNumVal("offsetY", item, prop, canvas, graphic);
-  //  var scaleX = this.propNumVal("scaleX", item, prop, canvas, graphic);
-  //  var scaleY =  this.propNumVal("scaleY", item, prop, canvas, graphic);
-  //  var width = this.propNumVal("width", item, prop, canvas, graphic);
-  //  var height = this.propNumVal("height", item, prop, canvas, graphic);
-  //  var rotate = this.propNumVal("rotate", item, prop, canvas, graphic);
-  //  
-  //  graphic.x = x - regX;
-  //  graphic.y = y - regY;
-  //  console.log("---------"+x+","+y);
-  //  console.log("---------"+regX+","+regY);
-  //  stage.addChild(graphic);
+    var graphic = new createjs.Shape();
+    var x = this.propNumVal("x", item, prop, canvas, graphic);
+    var y =  this.propNumVal("y", item, prop, canvas, graphic);
+    var width = this.propNumVal("width", item, prop, canvas, graphic);
+    var height = this.propNumVal("height", item, prop, canvas, graphic);
+    graphic.graphics.beginFill("DeepSkyBlue").drawRect(0, 0, width, height);
+    
+    var regX = this.propNumVal("regX", item, prop, canvas, graphic);
+    var regY =  this.propNumVal("regY", item, prop, canvas, graphic);
+    var offsetX = this.propNumVal("offsetX", item, prop, canvas, graphic);
+    var offsetY =  this.propNumVal("offsetY", item, prop, canvas, graphic);
+    var scaleX = this.propNumVal("scaleX", item, prop, canvas, graphic);
+    var scaleY =  this.propNumVal("scaleY", item, prop, canvas, graphic);
+    var width = this.propNumVal("width", item, prop, canvas, graphic);
+    var height = this.propNumVal("height", item, prop, canvas, graphic);
+    var rotate = this.propNumVal("rotate", item, prop, canvas, graphic);
+    
+    graphic.x = x - regX;
+    graphic.y = y - regY;
+    console.log("---------"+x+","+y);
+    console.log("---------"+regX+","+regY);
+    stage.addChild(graphic);
   },
   addImage: function(prop, item, canvas, stage) {
     if(!item) throw "missing item";

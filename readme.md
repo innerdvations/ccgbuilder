@@ -188,3 +188,8 @@ If you're passing in a JSON object of your own, make sure that it contains nothi
 [{filename:"red.png", cardtext:"this one is red", textcolor:"#FF0000"},
 {filename:"blue.png", cardtext:"this one is blue", textcolor:"#0000FF"}]
 ````
+
+
+## Known bugs
+
+* Calculated regX and regY values for text are not perfect and will probably need to be used in conjunction with offsets. We can eventually fix it for text with a given height/width, but difficult to fix for flexible width/height text.

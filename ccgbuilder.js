@@ -2,8 +2,8 @@ var Canvas = require('canvas');
 var fs = require('fs');
 
 // set up node-easel, including creating a global DOM for it
-var getWindow = require('nodejs-dom');
-getWindow(null, true);
+//var getWindow = require('nodejs-dom');
+//getWindow(null, true);
 require('node-easel');
 var Stage = createjs.Stage;
 var Shape = createjs.Shape;
@@ -158,7 +158,7 @@ var ccgbuilder = {
     }
     else if(field === "baseline") {
       // "top", "hanging", "middle", "alphabetic", "ideographic", or "bottom"
-      if(val === "") return null;
+      if(val === "") return "bottom";
     }
     else if(field === "options" || field === "style") {
       if(val === "") return "";
@@ -260,8 +260,9 @@ var ccgbuilder = {
     var baseline = this.propVal("baseline", item, prop, canvas, metrics);
     
     var obj = new createjs.Text(val, [style, size+"px", font].join(" "), color);
+    obj.baseline = baseline;
     metrics = {width:obj.getTransformedBounds().width, height:obj.getTransformedBounds().height};
-        
+    
     var x = this.propNumVal("x", item, prop, canvas, metrics);
     var y =  this.propNumVal("y", item, prop, canvas, metrics);
     var regX = this.propNumVal("regX", item, prop, canvas, metrics);
@@ -275,18 +276,21 @@ var ccgbuilder = {
     var rotate = this.propNumVal("rotate", item, prop, canvas, metrics);
     var options = this.propVal("options", item, prop, canvas, metrics).replace(/ /g, '').toLowerCase().split(",");
     
-    if(!font) font = "40px Comic Sans MS";
     if(val === null) throw "text not found";
     
-    if(width) {
-      if(this.hasOption("wrap", options)) {
-        obj.lineWidth = width;
-      }
-      else {
-        obj.maxWidth = width;
-      }
-    }
-
+    // if width was specified, we can recalculate values more precisely
+    //var rawWidth = this.propNumVal("width", item, prop, canvas, {width:0,height:0});
+    //var rawHeight = this.propNumVal("height", item, prop, canvas, {width:0,height:0});
+    //var rawMetrics = {width:rawWidth,height:rawHeight};
+    //if(rawWidth === width && rawWidth > 0) {
+    //  regX = this.propNumVal("regX", item, prop, canvas, rawMetrics);
+    //  console.log("rawWidth is equal:"+regX);
+    //}
+    //if(rawHeight === height && rawHeight > 0) {
+    //  regY = this.propNumVal("regY", item, prop, canvas, rawMetrics);
+    //  console.log("rawHeight is equal:"+regY);
+    //}
+    
     obj.regX = regX;
     obj.regY = regY;
     obj.x = x;

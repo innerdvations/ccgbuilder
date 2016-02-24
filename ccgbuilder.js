@@ -315,7 +315,7 @@ var ccgbuilder = {
     var obj = new createjs.Text(val, [style, size+"px", font].join(" "), color);
     
     metrics = {width:obj.getTransformedBounds().width, height:obj.getTransformedBounds().height};
-    console.log("****metrics:"+JSON.stringify(metrics));
+    
     var x = this.propNumVal("x", item, prop, canvas, metrics);
     var y =  this.propNumVal("y", item, prop, canvas, metrics);
     var regX = this.propNumVal("regX", item, prop, canvas, metrics);
@@ -335,13 +335,9 @@ var ccgbuilder = {
     if(!font) font = "40px Comic Sans MS";
     if(val === null) throw "text not found";
     
-    if(width) {
-      if(this.hasOption("wrap", options)) {
-        obj.lineWidth = width;
-      }
-      else {
-        obj.maxWidth = width;
-      }
+    var rawWidth = this.propNumVal("width", item, prop, canvas, {width:0,height:0});
+    if(rawWidth && rawWidth > 0) {
+      obj.lineWidth = width;
     }
     
     if(lineHeight) obj.lineHeight = lineHeight;

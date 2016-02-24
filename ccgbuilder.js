@@ -9,9 +9,9 @@ var Stage = createjs.Stage;
 var Shape = createjs.Shape;
 var Graphics = createjs.Graphics;
 
-var cardgen = {
+var ccgbuilder = {
    // errorMode "break" skips saving of images with problems, "continue" generates and saves them best as possible, "delete" skips saving and deletes any file with the given item's filename
-  errorMode: "delete",
+  errorMode: "break",
   merge: function(layout, db) {
     // break layout into config and loopable object array
     var objects = [];
@@ -24,6 +24,9 @@ var cardgen = {
         objects.push(row);
       }
       else if(row.type  === "text") {
+        objects.push(row);
+      }
+      else if(row.type  === "bitmaptext") {
         objects.push(row);
       }
       else if(row.type  === "textbox") {
@@ -410,13 +413,16 @@ var cardgen = {
       prop = properties[o];
       try {
         if(prop.type === "image") {
-            this.addImage(prop, item, canvas, stage);
+          this.addImage(prop, item, canvas, stage);
         }
         else if(prop.type === "text") {
-            this.addText(prop, item, canvas, stage);
+          this.addText(prop, item, canvas, stage);
         }
-        else if(prop.type === "text") {
-            this.addTextbox(prop, item, canvas, stage);
+        else if(prop.type === "textbox") {
+          this.addTextbox(prop, item, canvas, stage);
+        }
+        else if(prop.type === "bitmaptext") {
+          //this.addTextbox(prop, item, canvas, stage);
         }
         else if(prop.type === "square") {
           this.addSquare(prop, item, canvas, stage);
@@ -448,4 +454,4 @@ var cardgen = {
   },
 };
 
-module.exports = cardgen;
+module.exports = ccgbuilder;

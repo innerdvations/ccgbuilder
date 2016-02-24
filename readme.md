@@ -4,6 +4,7 @@ CCG Builder is a tool for using data from a spreadsheet or database to automatic
 
 CCG Builder uses EaselJS which in turn *requires* the Cairo graphics library to be installed on your system.
 
+*Currently very unstable and not feature complete* but most of the basic types are working well enough to use.
 
 ## Installation
 
@@ -168,8 +169,11 @@ Any type that begins with underscore _ is completely ignored. Use it to store co
 #### square
 Not fully implemented. Better to just load premade images.  Use at your own risk.
 
+#### bitmaptext
+Not yet implemented. Will be used for EaselJS bitmapText with a spritesheet.  For example, turn text such as "3BU" into three images in a row: a 3 icon, black icon, and blue icon.
+
 #### html
-Not yet implemented.
+Not yet implemented. Will allow simple html in a textbox by converting html to svg and placing it on canvas.
 
 
 ## Database document / items
@@ -184,9 +188,3 @@ If you're passing in a JSON object of your own, make sure that it contains nothi
 [{filename:"red.png", cardtext:"this one is red", textcolor:"#FF0000"},
 {filename:"blue.png", cardtext:"this one is blue", textcolor:"#0000FF"}]
 ````
-
-## Future Goals
-The project is currently unstable as features are added.  The project will be considered stable and feature complete once it can generate sufficiently complex images for a game such as Magic: The Gathering cards without clunky workarounds.
-
-Specifically, the features missing are positioning items relative to other item bounding boxes (ie, attaching a quote directly underneath card text) and allowing image text replacement (ie, replacing the word TAP with a tap icon, or replacing a string such as 3B with a 3 icon next to a mana color icon).
-

@@ -1,6 +1,6 @@
 var csv = require('csv');
 var fs = require('fs');
-var cardgen = require('./cardgen.js');
+var ccgbuilder = require('../../ccgbuilder.js');
 
 // synchronous csv parsing to simplify things
 function csvParseSync(csvData, options){
@@ -19,4 +19,4 @@ function csvParseSync(csvData, options){
 var layout = csvParseSync(fs.readFileSync(__dirname+'/layout.csv'), {columns:true});
 var items = csvParseSync(fs.readFileSync(__dirname+'/items.csv'), {columns:true});
 
-cardgen.merge(layout, items);
+ccgbuilder.merge(layout, items);

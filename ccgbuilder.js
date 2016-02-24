@@ -10,9 +10,8 @@ var Shape = createjs.Shape;
 var Graphics = createjs.Graphics;
 
 var cardgen = {
-  errorMode: "delete", // "break" skips saving of images with problems, "continue" generates and saves them best as possible, "delete" skips saving and deletes any file with the given item's filename
-  globalCompositeOperation: "source-over",
-  logging: "dev",
+   // errorMode "break" skips saving of images with problems, "continue" generates and saves them best as possible, "delete" skips saving and deletes any file with the given item's filename
+  errorMode: "delete",
   merge: function(layout, db) {
     // break layout into config and loopable object array
     var objects = [];
@@ -73,13 +72,11 @@ var cardgen = {
     
     // check if it's a special val
     if(this.isSpecialVal(val)) {
-      //console.log("special value "+val+" for "+field+" calculated at "+this.calcSpecialVal(field, item, prop, canvas, graphic));
       return this.calcSpecialVal(field, item, prop, canvas, graphic);
     }
     
     // check if it's a column header
     if(item.hasOwnProperty(val)) {
-      //console.log("lookup value for "+field+" calculated at "+item[val]);
       return item[val];
     }
     
@@ -87,12 +84,10 @@ var cardgen = {
     // (ie, : "0" == 0 but "0 mana" != 0, so we'll catch that)
     var nval = Number(val);
     if(!isNaN(nval) && nval !== null && nval == val) {
-      //console.log("number value for "+field+" calculated at "+val);
       return val;
     }
     
     // if all that fails, it has to be considered just a string
-    //console.log("string value for "+field+" calculated at "+val);
     return val;
   },
   propNumVal: function(field, item, prop, canvas, graphic) {
@@ -103,7 +98,6 @@ var cardgen = {
     if(typeof val === "string") {
       
       var res = specials.indexOf(val.trim().toLowerCase()) > -1;
-      //if(res) console.log("'"+val+"' is a special field");
       return res;
     }
     return false;
@@ -113,9 +107,7 @@ var cardgen = {
     var val = prop[field].trim().toLowerCase();
     var graphicWidth = metrics.width;
     var graphicHeight = metrics.height;
-    console.log("graphicWidth:"+graphicWidth);
-    console.log("graphicHeight:"+graphicHeight);
-    
+
     //console.log("calculating special val for "+val);
     if(field === "x" || field === "offsetX") {
       if(val === "") return 0;
@@ -196,6 +188,7 @@ var cardgen = {
     }
     return flag;
   },
+  // TODO
   addSquare: function(prop, item, canvas, stage) {
   //  var graphic = new createjs.Shape();
   //  var x = this.propNumVal("x", item, prop, canvas, graphic);
@@ -252,8 +245,6 @@ var cardgen = {
     obj.scaleY = scaleY * (height / graphic.height);
     obj.scaleX = scaleX * (width / graphic.width);
 
-    console.log("drawing "+graphic.src+" at "+x+","+y+"::"+width+","+height);
-
     stage.addChild(obj);
   },
   addText: function(prop, item, canvas, stage) {
@@ -301,11 +292,8 @@ var cardgen = {
     if(offsetY) obj.y = obj.y + offsetY;
     obj.rotation = rotate;
     
-    
     obj.scaleY = scaleY * (height / metrics.height);
     obj.scaleX = scaleX * (width / metrics.width);
-
-    console.log("drawing text "+val+" at "+obj.x+","+obj.y);
 
     stage.addChild(obj);
   },
@@ -388,20 +376,16 @@ var cardgen = {
     if(offsetY) obj.y = obj.y + offsetY;
     obj.rotation = rotate;
     
-    
-    //
     //obj.scaleY = scaleY * (height / graphic.height);
     //obj.scaleX = scaleX * (width / graphic.width);
 
     console.log("drawing text "+val+" at "+obj.x+","+obj.y);
 
     stage.addChild(obj);
-    //stage.update();
   },
   hasOption: function(val, options) {
     if(typeof val === "string") {
       var res = options.indexOf(val.trim().toLowerCase()) > -1;
-      //if(res) console.log("'"+val+"' is a special field");
       return res;
     }
     return false;
@@ -415,48 +399,43 @@ var cardgen = {
     var canvas = new Canvas(canvasWidth, canvasHeight);
 
     var stage = new createjs.Stage(canvas);
-    //var circle = new createjs.Shape();
-    //circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 50);
-    //circle.x = 50;
-    //circle.y = 50;
-    //stage.addChild(circle);
-    //stage.update();
 
-
+    var sh = require("shelljs");
+    var path = require('path');
+    var cwd = sh.pwd();
     if(!item.filename) throw "missing filename";
-    filename = __dirname + "/" + item.filename;
+    filename = path.resolve(cwd, item.filename);
     
     for(o in properties) {
       prop = properties[o];
-        //try {
-      if(prop.type === "image") {
-          this.addImage(prop, item, canvas, stage);
+      try {
+        if(prop.type === "image") {
+            this.addImage(prop, item, canvas, stage);
+        }
+        else if(prop.type === "text") {
+            this.addText(prop, item, canvas, stage);
+        }
+        else if(prop.type === "text") {
+            this.addTextbox(prop, item, canvas, stage);
+        }
+        else if(prop.type === "square") {
+          this.addSquare(prop, item, canvas, stage);
+        }
       }
-      else if(prop.type === "text") {
-          this.addText(prop, item, canvas, stage);
+      catch(e) { // we'll catch and keep going so we can generate
+        if(this.errorMode === "continue") console.log("Error: "+e);
+        if(this.errorMode === "delete") {
+          if(this.exists(filename)) fs.unlinkSync(filename);
+          throw e;
+        }
+        if(true || this.errorMode === "break") throw e;
       }
-      else if(prop.type === "text") {
-          this.addTextbox(prop, item, canvas, stage);
-      }
-      else if(prop.type === "square") {
-        this.addSquare(prop, item, canvas, stage);
-      }
-      
-        //}
-        //catch(e) { // we'll catch and keep going so we can generate
-        //  if(this.errorMode === "continue") console.log("Error: "+e);
-        //  if(this.errorMode === "delete") {
-        //    if(this.exists(filename)) fs.unlinkSync(filename);
-        //    throw e;
-        //  }
-        //  if(true || this.errorMode === "break") throw e;
-        //}
     }
     stage.update();
     
     outstream = fs.createWriteStream(filename)
     pngstream = canvas.pngStream();
-
+    
     console.log("starting file op, save to "+filename);
     pngstream.on('data', function(chunk){
       outstream.write(chunk);

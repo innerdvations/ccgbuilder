@@ -96,6 +96,17 @@ var ccgbuilder = {
   propNumVal: function(field, item, prop, canvas, graphic) {
     return Number(this.propVal(field, item, prop, canvas, graphic));
   },
+  propBoolVal: function(field, item, prop, canvas, graphic) {
+    if (!this.propVal(field, item, prop, canvas, graphic)) return false;
+    if (this.propVal(field, item, prop, canvas, graphic) === "0") return false;
+    if (this.propVal(field, item, prop, canvas, graphic) === 0) return false;
+    if (this.propVal(field, item, prop, canvas, graphic) === "") return false;
+    try {
+      if (this.propVal(field, item, prop, canvas, graphic).trim() == "false") return false;
+    } catch(e) {}
+    
+    return true;
+  },
   isSpecialVal: function(val) {
     var specials = ["","center","right","left","top","bottom"];
     if(typeof val === "string") {
@@ -108,8 +119,7 @@ var ccgbuilder = {
    // calcSpecialVal doesn't validate input, use isSpecialVal before calling
   calcSpecialVal: function(field, item, prop, canvas, metrics) {
     var val = prop[field].trim().toLowerCase();
-    var graphicWidth = metrics.width;
-    var graphicHeight = metrics.height;
+    if(!metrics) metrics = {width:0,height:0};
 
     //console.log("calculating special val for "+val);
     if(field === "x" || field === "offsetX") {
@@ -117,38 +127,38 @@ var ccgbuilder = {
       if(val === "center") return canvas.width / 2; // half of canvas width
       if(val === "left") return 0;
       if(val === "right") return canvas.width;
-      if(val === "height") return graphicHeight;
-      if(val === "width") return graphicWidth;
+      if(val === "height") return metrics.height;
+      if(val === "width") return metrics.width;
     }
     else if(field === "y" || field === "offsetY") {
       if(val === "") return 0;
       if(val === "center") return canvas.height / 2; // half of canvas width
       if(val === "top") return 0;
       if(val === "bottom") return canvas.height;
-      if(val === "height") return graphicHeight;
-      if(val === "width") return graphicWidth;
+      if(val === "height") return metrics.height;
+      if(val === "width") return metrics.width;
     }
     
     // x, y, offsetX, and offsetX are all relative to canvas
     else if(field === "regX") {
       if(val === "") return 0;
-      if(val === "center") return graphicWidth / 2; // half of item width
+      if(val === "center") return metrics.width / 2; // half of item width
       if(val === "left") return 0;
-      if(val === "right") return graphicWidth; // item width
+      if(val === "right") return metrics.width; // item width
     }
     else if(field === "regY") {
       if(val === "") return 0;
-      if(val === "center") return graphicHeight / 2; // half of item height
+      if(val === "center") return metrics.height / 2; // half of item height
       if(val === "top") return 0;
-      if(val === "bottom") return graphicHeight; // item height
+      if(val === "bottom") return metrics.height; // item height
     }
     
     // the rest of the fields aren't calculated, but need sensible defaults for when left blank
     else if(field === "width") {
-      if(val === "") return graphicWidth;
+      if(val === "") return metrics.width;
     }
     else if(field === "height") {
-      if(val === "") return graphicHeight;
+      if(val === "") return metrics.height;
     }
     else if(field === "scaleX" || field === "scaleY") {
       if(val === "") return 1;
@@ -178,6 +188,12 @@ var ccgbuilder = {
     }
     else if(field === "color") {
       if(val === "") return "#000000";
+    }
+    else if(field === "optional") {
+      if(val === "") return false;
+    }
+    else if(field === "val") {
+      if(val === "") return "";
     }
     
     throw "Couldn't calculate special value '"+val+"' for "+field;
@@ -217,11 +233,17 @@ var ccgbuilder = {
     stage.addChild(graphic);
   },
   addImage: function(prop, item, canvas, stage) {
-    if(!item) throw "missing item";
-    console.log("adding image: "+JSON.stringify(prop));
-
     var graphic = new Canvas.Image;
-    graphic.src = this.propVal("val", item, prop, canvas, graphic);
+
+    // check that val exists and if it's optional
+    var val = this.propVal("val", item, prop, canvas, graphic);
+    var optional = this.propBoolVal("optional", item, prop, canvas, graphic);
+    if(val.trim() === "" || !val) {
+      if(optional) return;
+      throw "missing val for image";
+    }
+
+    graphic.src = val;
     if(!this.exists(graphic.src)) throw "missing image:"+graphic.src;
     
     var x = this.propNumVal("x", item, prop, canvas, graphic);
@@ -252,12 +274,21 @@ var ccgbuilder = {
   },
   addText: function(prop, item, canvas, stage) {
     var metrics = {width:0,height:0};
+    
+    // check that val exists and if it's optional
     var val = this.propVal("val", item, prop, canvas, metrics);
+    var optional = this.propBoolVal("optional", item, prop, canvas, metrics);
+    if(val.trim() === "" || !val) {
+      if(optional) return;
+      throw "missing val for text";
+    }
+    
     var font = this.propVal("font", item, prop, canvas, metrics);
     var size = this.propVal("size", item, prop, canvas, metrics);
     var style = this.propVal("style", item, prop, canvas, metrics);
     var color = this.propVal("color", item, prop, canvas, metrics);
     var baseline = this.propVal("baseline", item, prop, canvas, metrics);
+    var optional = this.propNumVal("optional", item, prop, canvas, metrics);
     
     var obj = new createjs.Text(val, [style, size+"px", font].join(" "), color);
     obj.baseline = baseline;
@@ -274,22 +305,9 @@ var ccgbuilder = {
     var width = this.propNumVal("width", item, prop, canvas, metrics);
     var height = this.propNumVal("height", item, prop, canvas, metrics);
     var rotate = this.propNumVal("rotate", item, prop, canvas, metrics);
-    var options = this.propVal("options", item, prop, canvas, metrics).replace(/ /g, '').toLowerCase().split(",");
+    //var options = this.propVal("options", item, prop, canvas, metrics).replace(/ /g, '').toLowerCase().split(",");
     
     if(val === null) throw "text not found";
-    
-    // if width was specified, we can recalculate values more precisely
-    //var rawWidth = this.propNumVal("width", item, prop, canvas, {width:0,height:0});
-    //var rawHeight = this.propNumVal("height", item, prop, canvas, {width:0,height:0});
-    //var rawMetrics = {width:rawWidth,height:rawHeight};
-    //if(rawWidth === width && rawWidth > 0) {
-    //  regX = this.propNumVal("regX", item, prop, canvas, rawMetrics);
-    //  console.log("rawWidth is equal:"+regX);
-    //}
-    //if(rawHeight === height && rawHeight > 0) {
-    //  regY = this.propNumVal("regY", item, prop, canvas, rawMetrics);
-    //  console.log("rawHeight is equal:"+regY);
-    //}
     
     obj.regX = regX;
     obj.regY = regY;
@@ -306,12 +324,21 @@ var ccgbuilder = {
   },
   addTextbox: function(prop, item, canvas, stage) {
     var metrics = {width:0,height:0};
+    
+    // check that val exists and if it's optional
     var val = this.propVal("val", item, prop, canvas, metrics);
+    var optional = this.propBoolVal("optional", item, prop, canvas, metrics);
+    if(val.trim() === "" || !val) {
+      if(optional) return;
+      throw "missing val for textbox";
+    }
+    
+    // get basic properties
     var font = this.propVal("font", item, prop, canvas, metrics);
     var size = this.propVal("size", item, prop, canvas, metrics);
     var style = this.propVal("style", item, prop, canvas, metrics);
     var color = this.propVal("color", item, prop, canvas, metrics);
-    
+
     // create text object
     var obj = new createjs.Text(val, [style, size+"px", font].join(" "), color);
     
@@ -346,21 +373,11 @@ var ccgbuilder = {
     var offsetY =  this.propNumVal("offsetY", item, prop, canvas, metrics);
     var width = this.propNumVal("width", item, prop, canvas, metrics);
     var rotate = this.propNumVal("rotate", item, prop, canvas, metrics);
-    var options = this.propVal("options", item, prop, canvas, metrics).replace(/ /g, '').toLowerCase().split(",");
+    //var options = this.propVal("options", item, prop, canvas, metrics).replace(/ /g, '').toLowerCase().split(",");
     
-    // we need to modify regX based on text alignment
     var textAlign = this.propVal("textAlign", item, prop, canvas, metrics);
     obj.textAlign = textAlign;
-    //if(textAlign === "center") {
-    //  console.log("====width:"+obj.getTransformedBounds().width);
-    //  obj.regX = obj.regX - obj.getTransformedBounds().width / 2;
-    //}
-    //if(textAlign === "right") {
-    //  console.log("====width:"+obj.getTransformedBounds().width);
-    //  obj.regX = obj.regX - obj.getTransformedBounds().width;
-    //}
     
-
     obj.regX = regX;
     obj.regY = regY;
     
@@ -414,6 +431,8 @@ var ccgbuilder = {
     // create canvas
     var canvasWidth = this.propNumVal("width", item, canvas_prop);
     var canvasHeight = this.propNumVal("height", item, canvas_prop);
+    if(!canvasWidth || !canvasHeight) throw "missing canvas dimensions";
+    
     var canvas = new Canvas(canvasWidth, canvasHeight);
 
     var stage = new createjs.Stage(canvas);

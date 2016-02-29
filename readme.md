@@ -80,7 +80,7 @@ If specified for 'textbox' width will be used as the bounding box dimensions, an
 #### scaleX and scaleY (two separate columns)
 Blank defaults to 1.
 
-Used to scale the image.  Scaling is done after other basic transformations (width/height/regX/regY).
+Used to scale the image.  Scaling is done after other basic transformations (width/height/regX/regY).  Negative values can be used to flip/mirror image (such as -1).
 
 #### regX and regY  (two separate columns)
 Blank defaults to 0.
@@ -141,8 +141,11 @@ Only applies to text/textbox.
 
 The font baseline. Somewhat unreliable and untested.  Try changing it for tiny text positioning changes, but if it acts strange you're better off just leaving it default and tweaking the x/y offsets.
 
-#### options
-Used for experimental options. Just leave it blank.
+### optional
+Blank is considered false.
+Any other value is considered true.
+
+When true, this object is optional and only appears if val is present.  In other words, suppress errors/warnings for missing 'val' on this field.
 
 
 ### Types

@@ -306,72 +306,84 @@ var ccgbuilder = {
   },
   addTextbox: function(prop, item, canvas, stage) {
     var metrics = {width:0,height:0};
-    
     var val = this.propVal("val", item, prop, canvas, metrics);
     var font = this.propVal("font", item, prop, canvas, metrics);
     var size = this.propVal("size", item, prop, canvas, metrics);
     var style = this.propVal("style", item, prop, canvas, metrics);
     var color = this.propVal("color", item, prop, canvas, metrics);
+    
+    // create text object
     var obj = new createjs.Text(val, [style, size+"px", font].join(" "), color);
     
-    metrics = {width:obj.getTransformedBounds().width, height:obj.getTransformedBounds().height};
+    // set line height
+    var lineHeight = this.propNumVal("lineHeight", item, prop, canvas, metrics);
+    if(lineHeight) obj.lineHeight = lineHeight;
+    else obj.lineHeight = obj.getMeasuredLineHeight() * 1.2;  // default line height is hideous, sorry
     
+    // text baseline
+    var baseline = this.propVal("baseline", item, prop, canvas, metrics);
+    obj.textBaseline = baseline;
+    
+    // width is required that so we can actually make it a wrappable box
+    var width = this.propNumVal("width", item, prop, canvas, metrics);
+    var rawWidth = this.propNumVal("width", item, prop, canvas, {width:0,height:0});
+    console.log("Textbox width: "+width+"::"+rawWidth);
+    if(!rawWidth) throw "missing width for textbox";
+    if(rawWidth != width) throw "invalid width for textbox";
+    
+    // make the text wrap at width
+    obj.lineWidth = width;
+    
+    // get the measured height
+    metrics = {width:width, height:obj.getTransformedBounds().height};
+    
+    // position and sizing properties
     var x = this.propNumVal("x", item, prop, canvas, metrics);
     var y =  this.propNumVal("y", item, prop, canvas, metrics);
     var regX = this.propNumVal("regX", item, prop, canvas, metrics);
     var regY =  this.propNumVal("regY", item, prop, canvas, metrics);
     var offsetX = this.propNumVal("offsetX", item, prop, canvas, metrics);
     var offsetY =  this.propNumVal("offsetY", item, prop, canvas, metrics);
-    var scaleX = this.propNumVal("scaleX", item, prop, canvas, metrics);
-    var scaleY =  this.propNumVal("scaleY", item, prop, canvas, metrics);
     var width = this.propNumVal("width", item, prop, canvas, metrics);
-    var height = this.propNumVal("height", item, prop, canvas, metrics);
     var rotate = this.propNumVal("rotate", item, prop, canvas, metrics);
-    var lineHeight = this.propNumVal("lineHeight", item, prop, canvas, metrics);
-    var textAlign = this.propVal("textAlign", item, prop, canvas, metrics);
-    var baseline = this.propVal("baseline", item, prop, canvas, metrics);
     var options = this.propVal("options", item, prop, canvas, metrics).replace(/ /g, '').toLowerCase().split(",");
     
-    if(!font) font = "40px Comic Sans MS";
-    if(val === null) throw "text not found";
-    
-    var rawWidth = this.propNumVal("width", item, prop, canvas, {width:0,height:0});
-    if(rawWidth && rawWidth > 0) {
-      obj.lineWidth = width;
-    }
-    
-    if(lineHeight) obj.lineHeight = lineHeight;
-    else obj.lineHeight = obj.getMeasuredLineHeight() * 1.2;  // default line height is hideous, sorry
-    obj.textBaseline = baseline;
+    // we need to modify regX based on text alignment
+    var textAlign = this.propVal("textAlign", item, prop, canvas, metrics);
     obj.textAlign = textAlign;
-    obj.regX = regX;
-    var emptyHeight = true;
-    // if height is empty and regY is special, we'll use our calculated height to do regY
-    if(prop["height"] === "" && this.isSpecialVal(prop["regY"])) {
-      console.log("***** special prop");
-      if(prop["regY"] === "top") obj.regY = 0;
-      if(prop["regY"] === "center") obj.regY = obj.getTransformedBounds().height/2;
-      if(prop["regY"] === "bottom") obj.regY = obj.getTransformedBounds().height;
-    }
-    else {
-      obj.regY = regY;
-    }
-    // when it's aligned, we need to shift it over since we use regX to maintain position
-    if(textAlign === "center") {
-      console.log("====width:"+obj.getTransformedBounds().width);
-      obj.regX = obj.regX - obj.getTransformedBounds().width / 2;
-    }
-    if(textAlign === "right") {
-      console.log("====width:"+obj.getTransformedBounds().width);
-      obj.regX = obj.regX - obj.getTransformedBounds().width;
-    }
+    //if(textAlign === "center") {
+    //  console.log("====width:"+obj.getTransformedBounds().width);
+    //  obj.regX = obj.regX - obj.getTransformedBounds().width / 2;
+    //}
+    //if(textAlign === "right") {
+    //  console.log("====width:"+obj.getTransformedBounds().width);
+    //  obj.regX = obj.regX - obj.getTransformedBounds().width;
+    //}
     
-    if(height) {
-      if(obj.getTransformedBounds().height > height) {
-        console.log("Warning: text too big for box");
-        console.log(obj.getTransformedBounds().height + ">" + height);
-      }
-    }
+
+    obj.regX = regX;
+    obj.regY = regY;
+    
+    // if height is empty and regY is special, we'll use our calculated height to do regY
+    // if(prop["height"] === "" && this.isSpecialVal(prop["regY"])) {
+    //   console.log("***** special prop");
+    //   if(prop["regY"] === "top") obj.regY = 0;
+    //   if(prop["regY"] === "center") obj.regY = obj.getTransformedBounds().height/2;
+    //   if(prop["regY"] === "bottom") obj.regY = obj.getTransformedBounds().height;
+    // }
+    // else {
+    //   obj.regY = regY;
+    // }
+    
+    // TODO: if a height is specified, reduce font size and redraw until it fits
+    //var height = this.propNumVal("height", item, prop, canvas, metrics);
+    //var rawHeight = this.propNumVal("height", item, prop, canvas, {width:0,height:0});
+    //if(height) {
+    //  if(obj.getTransformedBounds().height > height) {
+    //    console.log("Warning: text too big for box");
+    //    console.log(obj.getTransformedBounds().height + ">" + height);
+    //  }
+    //}
     
     obj.x = x;
     obj.y = y;
@@ -379,6 +391,9 @@ var ccgbuilder = {
     if(offsetY) obj.y = obj.y + offsetY;
     obj.rotation = rotate;
     
+    // Scale isn't used for textbox
+    //var scaleX = this.propNumVal("scaleX", item, prop, canvas, metrics);
+    //var scaleY =  this.propNumVal("scaleY", item, prop, canvas, metrics);
     //obj.scaleY = scaleY * (height / graphic.height);
     //obj.scaleX = scaleX * (width / graphic.width);
 
@@ -422,7 +437,7 @@ var ccgbuilder = {
           this.addTextbox(prop, item, canvas, stage);
         }
         else if(prop.type === "bitmaptext") {
-          //this.addTextbox(prop, item, canvas, stage);
+          this.addText(prop, item, canvas, stage);
         }
         else if(prop.type === "square") {
           this.addSquare(prop, item, canvas, stage);

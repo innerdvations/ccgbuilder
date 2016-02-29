@@ -1,0 +1,10 @@
+qty,color,filename,img:primary,textwidth
+2,red,out/red.png,img/red.png,445
+2,orange,out/orange.png,img/orange.png,445
+2,yellow,out/yellow.png,img/yellow.png,445
+2,lime,out/lime.png,img/lime.png,445
+4,green,out/green.png,img/green.png,445
+2,cyan,out/cyan.png,img/cyan.png,445
+2,blue,out/blue.png,img/blue.png,445
+2,purple,out/purple.png,img/purple.png,445
+2,pink,out/pink.png,img/pink.png,445

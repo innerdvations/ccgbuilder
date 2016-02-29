@@ -19,7 +19,7 @@ var ccgbuilder = {
     var canvas_prop;
     var row;
     var id;
-    var valid_types = ["image", "text" , "bitmaptext","textbox","html","square","spritesheet","canvas"];
+    var valid_types = ["image","text","bitmaptext","textbox","html","square","spritesheet","canvas"];
     
     for(i in layout) {
       row = layout[i];
@@ -34,7 +34,7 @@ var ccgbuilder = {
         objects.push(row);
       }
       else {
-        throw "invalid layout type '"+type+"'";
+        throw "invalid layout type '"+row.type+"'";
       }
       
       // store them all for later lookup
@@ -296,7 +296,6 @@ var ccgbuilder = {
     // loop through charmap to create animations array for spritemap
     var animations = {};
     for(var i=0; i < ss_charmap.length; i++) {
-      console.log(ss_charmap.charAt(i)+"="+i);
       animations[ ss_charmap.charAt(i) ] = {frames:[i]};
     }
     
@@ -472,13 +471,14 @@ var ccgbuilder = {
     if(offsetY) obj.y = obj.y + offsetY;
     obj.rotation = rotate;
     
-    // Scale isn't used for textbox
+    // Scale isn't used for textbox right now
     //var scaleX = this.propNumVal("scaleX", item, prop, canvas, metrics);
     //var scaleY =  this.propNumVal("scaleY", item, prop, canvas, metrics);
     //obj.scaleY = scaleY * (height / graphic.height);
     //obj.scaleX = scaleX * (width / graphic.width);
 
-    console.log("drawing text "+val+" at "+obj.x+","+obj.y);
+    console.log("drawing textbox "+val+" at "+obj.x+","+obj.y);
+    console.log(JSON.stringify({x:x,y:y,regX:regX,regY:regY,offsetX:offsetX,offsetY:offsetY}));
 
     stage.addChild(obj);
   },
@@ -517,6 +517,9 @@ var ccgbuilder = {
           this.addText(prop, item, canvas, stage);
         }
         else if(prop.type === "textbox") {
+          this.addTextbox(prop, item, canvas, stage);
+        }
+        else if(prop.type === "html") {
           this.addTextbox(prop, item, canvas, stage);
         }
         else if(prop.type === "bitmaptext") {

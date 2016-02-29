@@ -169,11 +169,14 @@ Multiline text.  val should be either a header from the database doc, or a strin
 #### _comment
 Any type that begins with underscore _ is completely ignored. Use it to store comments or values used with formulas in your spreadsheet.  For example, if you need 50 pixels of border padding to be applied to several items, you can put _borderpadding in type and 50 in val, and then use spreadsheet formulas (vlookup, sum) to grab that value as needed.
 
+#### bitmaptext
+Bitmap Text allows you to turn a text string into a sequence of images, such as having "3BU" become three icons in a row: a 3 symbol, black mana symbol, and blue mana symbol.
+
+Requires a spritesheet url to be given in the 'font' field and 
+[See EaselJS bitmapText for more info.](http://createjs.com/docs/easeljs/classes/BitmapText.html)
+
 #### square
 Not fully implemented. Better to just load premade images.  Use at your own risk.
-
-#### bitmaptext
-Not yet implemented. Will be used for EaselJS bitmapText with a spritesheet.  For example, turn text such as "3BU" into three images in a row: a 3 icon, black icon, and blue icon.
 
 #### html
 Not yet implemented. Will allow simple html in a textbox by converting html to svg and placing it on canvas.

@@ -12,42 +12,37 @@ var Graphics = createjs.Graphics;
 var ccgbuilder = {
    // errorMode "break" skips saving of images with problems, "continue" generates and saves them best as possible, "delete" skips saving and deletes any file with the given item's filename
   errorMode: "break",
+  layout_items:{},
   merge: function(layout, db) {
     // break layout into config and loopable object array
     var objects = [];
     var canvas_prop;
     var row;
+    var id;
+    var valid_types = ["image", "text" , "bitmaptext","textbox","html","square","spritesheet","canvas"];
     
     for(i in layout) {
       row = layout[i];
-      if(row.type === "image") {
-        objects.push(row);
-      }
-      else if(row.type  === "text") {
-        objects.push(row);
-      }
-      else if(row.type  === "bitmaptext") {
-        objects.push(row);
-      }
-      else if(row.type  === "textbox") {
-        objects.push(row);
-      }
-      else if(row.type  === "html") {
-        objects.push(row);
-      }
-      else if(row.type  === "square") {
-        objects.push(row);
-      }
-      else if(row.type.charAt(0)  === "_") {
+      if(row.type.charAt(0)  === "_") {
         // safely ignore comment line
       }
       else if(row.type  === "canvas") {
         // canvas properties
         canvas_prop = row;
       }
-      else {
-        throw "invalid layout type";
+      else if(valid_types.indexOf(row.type.trim().toLowerCase()) > -1) {
+        objects.push(row);
       }
+      else {
+        throw "invalid layout type '"+type+"'";
+      }
+      
+      // store them all for later lookup
+      id = i;
+      if(row.type === "canvas") id = "canvas";
+      else if(row.id) id = row.id;
+      
+      this.layout_items[id] = row;
     }
     
     if(!canvas_prop) throw "missing canvas properties";

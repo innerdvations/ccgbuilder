@@ -184,6 +184,8 @@ Calculated values such as top/left/center cannot be used in any of these fields 
 For example, given the spritesheet in examples/all/img/spritesheet.png
 val should be 'img/spritesheet.png', width and height should be 20 since each character is 20x20 in the png, regX and regY should be 0 in order for any calculated positioning in bitmapText to work right, and font should be RGBUW which means that the letter R will be replaced by the first frame (ie, the first 20x20 block in the spritesheet), G will be replaced by the second, and so on.
 
+Sprites of differing sizes are not supported at this time; all characters must have the exact same dimensions.
+
 [See EaselJS spriteSheet for more info.](http://createjs.com/docs/easeljs/classes/SpriteSheet.html)
  
 #### bitmaptext

@@ -306,7 +306,7 @@ var ccgbuilder = {
     
 		var ss = new createjs.SpriteSheet({
 				"images": [ss_graphic],
-				"frames": {"regX": ss_regX, "height": ss_height, "count": 64, "regY": ss_regY, "width": ss_width},
+				"frames": {"regX": ss_regX, "height": ss_height, "regY": ss_regY, "width": ss_width},
         "animations":animations
 			});
       

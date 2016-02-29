@@ -80,7 +80,9 @@ If specified for 'textbox' width will be used as the bounding box dimensions, an
 #### scaleX and scaleY (two separate columns)
 Blank defaults to 1.
 
-Used to scale the image.  Scaling is done after other basic transformations (width/height/regX/regY).  Negative values can be used to flip/mirror image (such as -1).
+Used to scale the image.  Scaling is done after other basic transformations (width/height/regX/regY).
+
+Negative values can be used to flip/mirror image (such as -1), but since it is done after other transformations, you will likely need to flip your regX/regY or x/y positioning to get it to appear where intended.
 
 #### regX and regY  (two separate columns)
 Blank defaults to 0.
@@ -164,15 +166,31 @@ An image resource to be loaded.  val should be either a filename (for an image c
 A single line of text.  val should be either a header from the database doc, or a string value.  See layout properties for specifics.
 
 #### textbox
-Multiline text.  val should be either a header from the database doc, or a string value.  *Width is required*, height is currently ignored but should be left blank as it may be used in the future. See layout properties for specifics.
+Multiline text.  val should be either a header from the database doc, or a string value.  *Width is required*, height is currently ignored but should be left blank as it may be used in the future. See layout properties for specifics. Scale is ignored.
 
 #### _comment
 Any type that begins with underscore _ is completely ignored. Use it to store comments or values used with formulas in your spreadsheet.  For example, if you need 50 pixels of border padding to be applied to several items, you can put _borderpadding in type and 50 in val, and then use spreadsheet formulas (vlookup, sum) to grab that value as needed.
 
+#### spriteSheet
+Meta information for a spritesheet to be used in conjunction with bitmapText.
+val should resolve to a filename for the spritesheet image to be used.
+width and height are the values for an individual frame in your spritesheet.
+regX and regY are the values to be used for an individual frame in your spritesheet
+font should be the character map, a string of characters in the exact order as the frames of your spritesheet
+Frames will be assigned indexes based on their position in the source images (left to right, top to bottom).
+
+Calculated values such as top/left/center cannot be used in any of these fields and must be manually specified.
+
+For example, given the spritesheet in examples/all/img/spritesheet.png
+val should be 'img/spritesheet.png', width and height should be 20 since each character is 20x20 in the png, regX and regY should be 0 in order for any calculated positioning in bitmapText to work right, and font should be RGBUW which means that the letter R will be replaced by the first frame (ie, the first 20x20 block in the spritesheet), G will be replaced by the second, and so on.
+
+[See EaselJS spriteSheet for more info.](http://createjs.com/docs/easeljs/classes/SpriteSheet.html)
+ 
 #### bitmaptext
 Bitmap Text allows you to turn a text string into a sequence of images, such as having "3BU" become three icons in a row: a 3 symbol, black mana symbol, and blue mana symbol.
 
-Requires a spritesheet url to be given in the 'font' field and 
+Font field should be the id of a spritesheet.
+
 [See EaselJS bitmapText for more info.](http://createjs.com/docs/easeljs/classes/BitmapText.html)
 
 #### square

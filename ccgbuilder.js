@@ -116,7 +116,6 @@ var ccgbuilder = {
     var val = prop[field].trim().toLowerCase();
     if(!metrics) metrics = {width:0,height:0};
 
-    //console.log("calculating special val for "+val);
     if(field === "x" || field === "offsetX") {
       if(val === "") return 0;
       if(val === "center") return canvas.width / 2; // half of canvas width
@@ -223,8 +222,6 @@ var ccgbuilder = {
     
     graphic.x = x - regX;
     graphic.y = y - regY;
-    console.log("---------"+x+","+y);
-    console.log("---------"+regX+","+regY);
     stage.addChild(graphic);
   },
   addImage: function(prop, item, canvas, stage) {
@@ -266,6 +263,81 @@ var ccgbuilder = {
     obj.scaleX = scaleX * (width / graphic.width);
 
     stage.addChild(obj);
+  },
+  addBitmapText: function(prop, item, canvas, stage) {
+    var metrics = {width:0,height:0};
+    
+    // check that val exists and if it's optional
+    var val = this.propVal("val", item, prop, canvas, metrics);
+    var optional = this.propBoolVal("optional", item, prop, canvas, metrics);
+    if(val.trim() === "" || !val) {
+      if(optional) return;
+      throw "missing val for bitmaptext";
+    }
+    
+    // load the associated spritesheet for this object
+    var ss_id = this.propVal("font", item, prop, canvas, metrics);
+    var spritesheet_row = this.layout_items[ss_id];
+    if(!ss_id || !spritesheet_row) throw "invalid spritesheet id '"+ss_id+"'";
+    
+    // set up the spritesheet
+    var ss_val = this.propVal("val", item, spritesheet_row, canvas, metrics);
+    if(!ss_val) throw "missing val for spritesheet";
+    var ss_width = this.propNumVal("width", item, spritesheet_row, canvas, metrics);
+    if(!ss_width) throw "missing width for spritesheet";
+    var ss_height = this.propNumVal("height", item, spritesheet_row, canvas, metrics);
+    if(!ss_height) throw "missing height for spritesheet";
+    metrics = {width:ss_width,height:ss_height};
+    var ss_regX = this.propNumVal("regX", item, spritesheet_row, canvas, metrics);
+    var ss_regY = this.propNumVal("regY", item, spritesheet_row, canvas, metrics);
+    var ss_charmap = this.propVal("font", item, spritesheet_row, canvas, metrics);
+    if(!ss_charmap) throw "missing spritesheet character map";
+    
+    // loop through charmap to create animations array for spritemap
+    var animations = {};
+    for(var i=0; i < ss_charmap.length; i++) {
+      console.log(ss_charmap.charAt(i)+"="+i);
+      animations[ ss_charmap.charAt(i) ] = {frames:[i]};
+    }
+    
+    var ss_graphic = new Canvas.Image;
+    ss_graphic.src = ss_val;
+    if(!this.exists(ss_graphic.src)) throw "missing spritesheet image:"+ss_graphic.src;
+    
+		var ss = new createjs.SpriteSheet({
+				"images": [ss_graphic],
+				"frames": {"regX": ss_regX, "height": ss_height, "count": 64, "regY": ss_regY, "width": ss_width},
+        "animations":animations
+			});
+      
+    var obj = new createjs.BitmapText(val, ss);
+    
+    // get position properties
+    metrics = {width:obj.getTransformedBounds().width, height:obj.getTransformedBounds().height};
+    var x = this.propNumVal("x", item, prop, canvas, metrics);
+    var y =  this.propNumVal("y", item, prop, canvas, metrics);
+    var regX = this.propNumVal("regX", item, prop, canvas, metrics);
+    var regY =  this.propNumVal("regY", item, prop, canvas, metrics);
+    var offsetX = this.propNumVal("offsetX", item, prop, canvas, metrics);
+    var offsetY =  this.propNumVal("offsetY", item, prop, canvas, metrics);
+    var scaleX = this.propNumVal("scaleX", item, prop, canvas, metrics);
+    var scaleY =  this.propNumVal("scaleY", item, prop, canvas, metrics);
+    var width = this.propNumVal("width", item, prop, canvas, metrics);
+    var height = this.propNumVal("height", item, prop, canvas, metrics);
+    var rotate = this.propNumVal("rotate", item, prop, canvas, metrics);
+    
+    obj.regX = regX;
+    obj.regY = regY;
+    obj.x = x;
+    obj.y = y;
+    if(offsetX) obj.x = obj.x + offsetX;
+    if(offsetY) obj.y = obj.y + offsetY;
+    obj.rotation = rotate;
+    
+    obj.scaleY = scaleY * (height / metrics.height);
+    obj.scaleX = scaleX * (width / metrics.width);
+    stage.addChild(obj);
+    
   },
   addText: function(prop, item, canvas, stage) {
     var metrics = {width:0,height:0};
@@ -348,10 +420,7 @@ var ccgbuilder = {
     
     // width is required that so we can actually make it a wrappable box
     var width = this.propNumVal("width", item, prop, canvas, metrics);
-    var rawWidth = this.propNumVal("width", item, prop, canvas, {width:0,height:0});
-    console.log("Textbox width: "+width+"::"+rawWidth);
-    if(!rawWidth) throw "missing width for textbox";
-    if(rawWidth != width) throw "invalid width for textbox";
+    if(!width) throw "missing width for textbox";
     
     // make the text wrap at width
     obj.lineWidth = width;
@@ -451,7 +520,7 @@ var ccgbuilder = {
           this.addTextbox(prop, item, canvas, stage);
         }
         else if(prop.type === "bitmaptext") {
-          this.addText(prop, item, canvas, stage);
+          this.addBitmapText(prop, item, canvas, stage);
         }
         else if(prop.type === "square") {
           this.addSquare(prop, item, canvas, stage);

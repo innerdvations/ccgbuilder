@@ -440,30 +440,16 @@ var ccgbuilder = {
     var rotate = this.propNumVal("rotate", item, prop, canvas, metrics);
     //var options = this.propVal("options", item, prop, canvas, metrics).replace(/ /g, '').toLowerCase().split(",");
     
-    // text alignment causes its own changes in regX calculation that we need to work around
+    // text alignment right and center cause changes in regX calculation that we need to work around
     if(textAlign === "center") {
-      console.log("preregx:"+preregX);
-      if(preregX == "left") {
-        //regX = 0;
-      }
-      else if(preregX == "center") {
-        regX = 0;
-      }
-      else if(preregX == "right") {
-       // regX = 0;
-      }
+      if(preregX == "left") regX = -1 * width / 2;
+      else if(preregX == "center") regX = 0;
+      else if(preregX == "right") regX = width / 2;
     }
     if(textAlign === "right") {
-      console.log("preregx:"+preregX);
-      if(preregX == "left") {
-        regX = -1 * width;
-      }
-      else if(preregX == "center") {
-        regX = -1 * width / 2;
-      }
-      else if(preregX == "right") {
-        regX = 0;
-      }
+      if(preregX == "left") regX = -1 * width;
+      else if(preregX == "center") regX = -1 * width / 2;
+      else if(preregX == "right") regX = 0;
     }
     
     obj.regX = regX;

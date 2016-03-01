@@ -7,8 +7,6 @@ var path = require('path');
 var cwd = sh.pwd();
 
 // set up node-easel, including creating a global DOM for it
-//var getWindow = require('nodejs-dom');
-//getWindow(null, true);
 require('node-easel');
 var Stage = createjs.Stage;
 var Shape = createjs.Shape;

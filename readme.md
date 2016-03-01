@@ -17,8 +17,22 @@ There are two input objects required to build images.  A database or list of ite
 
 An example that uses nearly every feature can be found in the examples/all directory.
 
+Example documents can be found on Google Spreadsheets: https://docs.google.com/spreadsheets/d/1D4d-Fc-almcuSlrkN1ADMFvLvkQrOUwNbv7sFhlQZmA/
+
+
 ### Command Line
-`node ccgbuilder layout.csv items.csv`
+Usage: node ccgbuilder.js  [options]                                                                         
+                                                                                  
+Options:                                                                          
+  -e, --errorMode   On error: halt processing, ignore and continue, or delete     
+                    files matching output names                                   
+                         [choices: "halt", "ignore", "delete"] [default: "halt"]  
+  -q, --quiet       hide non-error log messages                 [default: false]  
+  -p, --prefix      Prefix for layout and item filenames           [default: ""]  
+  -l, --layout      Layout csv filename                  [default: "layout.csv"]  
+  -i, --item, --db  item db csv filename                  [default: "items.csv"]  
+  -h, --help        Show help                                          [boolean]  
+  
 
 ### Module
 Here's an example which loads a file in the current directory called "layout.csv" as the instruction and "items.csv" as the database.

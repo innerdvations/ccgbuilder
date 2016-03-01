@@ -1,4 +1,4 @@
-qty,color,filename,img:primary,textwidth
-2,red,out/red.png,img/red.png,445
-2,orange,out/orange.png,img/orange.png,445
-2,yellow,out/yellow.png,img/yellow.png,445
+qty,title,filename,mainimage,cost,rules,quote
+2,red,out/red.png,img/red.png,RRR,Rules for red go here.  They wrap as necessary when too long too fit on one line.,This is an example quote for red.
+2,orange,out/orange.png,img/orange.png,GBUW,Rules for orange go here. They wrap as necessary when too long too fit on one line.,This is an example quote for orange.
+2,yellow,out/yellow.png,img/yellow.png,UWGB,These are the rules for the yellow card,

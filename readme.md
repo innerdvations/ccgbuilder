@@ -21,6 +21,8 @@ Example documents can be found on Google Spreadsheets: https://docs.google.com/s
 
 
 ### Command Line
+
+````
 Usage: node ccgbuilder.js  [options]                                                                         
                                                                                   
 Options:                                                                          
@@ -32,7 +34,7 @@ Options:
   -l, --layout      Layout csv filename                  [default: "layout.csv"]  
   -i, --item, --db  item db csv filename                  [default: "items.csv"]  
   -h, --help        Show help                                          [boolean]  
-  
+````
 
 ### Module
 Here's an example which loads a file in the current directory called "layout.csv" as the instruction and "items.csv" as the database.

@@ -27,6 +27,5 @@ function csvParseSync(data, options) {
 
 var layout = csvParseSync(fs.readFileSync(__dirname+'/layout.csv','utf8'), {columns:true});
 var items = csvParseSync(fs.readFileSync(__dirname+'/items.csv','utf8'), {columns:true});
-console.log("items:"+JSON.stringify(items));
 
 ccgbuilder.merge(layout, items);

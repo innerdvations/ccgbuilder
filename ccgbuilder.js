@@ -462,13 +462,10 @@ var ccgbuilder = {
     obj.rotation = rotate;
     
     // Scale isn't used for textbox right now
-    //var scaleX = this.propNumVal("scaleX", item, prop, canvas, metrics);
-    //var scaleY =  this.propNumVal("scaleY", item, prop, canvas, metrics);
-    //obj.scaleY = scaleY * (height / graphic.height);
-    //obj.scaleX = scaleX * (width / graphic.width);
-
-    //console.log("drawing textbox "+val+" at "+obj.x+","+obj.y);
-    //console.log(JSON.stringify({x:x,y:y,regX:regX,regY:regY,offsetX:offsetX,offsetY:offsetY}));
+    var scaleX = this.propNumVal("scaleX", item, prop, canvas, metrics);
+    var scaleY =  this.propNumVal("scaleY", item, prop, canvas, metrics);
+    obj.scaleX = scaleX;
+    obj.scaleY = scaleY;
 
     stage.addChild(obj);
   },

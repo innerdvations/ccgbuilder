@@ -166,7 +166,7 @@ An image resource to be loaded.  val should be either a filename (for an image c
 A single line of text.  val should be either a header from the database doc, or a string value.  See layout properties for specifics.
 
 #### textbox
-Multiline text.  val should be either a header from the database doc, or a string value.  *Width is required*, height is currently ignored but should be left blank as it may be used in the future. See layout properties for specifics. Scale is ignored.
+Multiline text.  val should be either a header from the database doc, or a string value.  *Width is required*, height is currently ignored but should be left blank as it may be used in the future to enforce heights. See layout properties for specifics.
 
 #### _comment
 Any type that begins with underscore _ is completely ignored. Use it to store comments or values used with formulas in your spreadsheet.  For example, if you need 50 pixels of border padding to be applied to several items, you can put _borderpadding in type and 50 in val, and then use spreadsheet formulas (vlookup, sum) to grab that value as needed.

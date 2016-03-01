@@ -1,5 +1,10 @@
 var Canvas = require('canvas');
 var fs = require('fs');
+var StringDecoder = require('string_decoder').StringDecoder;
+var parse = require('csv-parse');
+var sh = require("shelljs");
+var path = require('path');
+var cwd = sh.pwd();
 
 // set up node-easel, including creating a global DOM for it
 //var getWindow = require('nodejs-dom');
@@ -13,13 +18,41 @@ var ccgbuilder = {
    // errorMode "break" skips saving of images with problems, "continue" generates and saves them best as possible even if there are errors, "delete" skips saving and also deletes existing file with the given item's filename
   errorMode: "break",
   layout_items:{},
+  loadCSV: function(file) {
+    filename = path.resolve(cwd, file);
+    return this.csvParseSync(fs.readFileSync(filename,'utf8'), {columns:true});
+  },
+  csvParseSync: function(data, options) {
+    var decoder, parser, records;
+    if (options == null) {
+      options = {};
+    }
+    records = [];
+    if (data instanceof Buffer) {
+      decoder = new StringDecoder();
+      data = decoder.write(data);
+    }
+    parser = new parse.Parser(options);
+    parser.push = function(record) {
+      return records.push(record);
+    };
+    parser.__write(data, false);
+    if (data.end) {
+      parser.__write(data.end(), true);
+    }
+    parser._flush((function() {}));
+    return records;
+  },
   merge: function(layout, db) {
+    if(typeof layout === 'string') layout = this.loadCSV(layout);
+    if(typeof db === 'string') db = this.loadCSV(db);
+    
     // break layout into config and loopable object array
     var objects = [];
     var canvas_prop;
     var row;
     var id;
-    var valid_types = ["image","text","bitmaptext","textbox","html","square","spritesheet","canvas"];
+    var valid_types = ["image","text","bitmaptext","textbox","spritesheet","canvas"];
     
     for(i in layout) {
       row = layout[i];
@@ -197,29 +230,6 @@ var ccgbuilder = {
       flag = false;
     }
     return flag;
-  },
-  // TODO
-  addSquare: function(prop, item, canvas, stage) {
-    var graphic = new createjs.Shape();
-    var x = this.propNumVal("x", item, prop, canvas, graphic);
-    var y =  this.propNumVal("y", item, prop, canvas, graphic);
-    var width = this.propNumVal("width", item, prop, canvas, graphic);
-    var height = this.propNumVal("height", item, prop, canvas, graphic);
-    graphic.graphics.beginFill("DeepSkyBlue").drawRect(0, 0, width, height);
-    
-    var regX = this.propNumVal("regX", item, prop, canvas, graphic);
-    var regY =  this.propNumVal("regY", item, prop, canvas, graphic);
-    var offsetX = this.propNumVal("offsetX", item, prop, canvas, graphic);
-    var offsetY =  this.propNumVal("offsetY", item, prop, canvas, graphic);
-    var scaleX = this.propNumVal("scaleX", item, prop, canvas, graphic);
-    var scaleY =  this.propNumVal("scaleY", item, prop, canvas, graphic);
-    var width = this.propNumVal("width", item, prop, canvas, graphic);
-    var height = this.propNumVal("height", item, prop, canvas, graphic);
-    var rotate = this.propNumVal("rotate", item, prop, canvas, graphic);
-    
-    graphic.x = x - regX;
-    graphic.y = y - regY;
-    stage.addChild(graphic);
   },
   addImage: function(prop, item, canvas, stage) {
     var graphic = new Canvas.Image;
@@ -488,9 +498,6 @@ var ccgbuilder = {
 
     var stage = new createjs.Stage(canvas);
 
-    var sh = require("shelljs");
-    var path = require('path');
-    var cwd = sh.pwd();
     if(!item.filename) throw "missing filename";
     filename = path.resolve(cwd, item.filename);
     
@@ -506,20 +513,17 @@ var ccgbuilder = {
         else if(prop.type === "textbox") {
           this.addTextbox(prop, item, canvas, stage);
         }
-        else if(prop.type === "html") {
-          this.addTextbox(prop, item, canvas, stage);
-        }
         else if(prop.type === "bitmaptext") {
           this.addBitmapText(prop, item, canvas, stage);
-        }
-        else if(prop.type === "square") {
-          this.addSquare(prop, item, canvas, stage);
         }
       }
       catch(e) { // we'll catch and keep going so we can generate
         if(this.errorMode === "continue") console.log("Error: "+e);
         else if(this.errorMode === "delete") {
-          if(this.exists(filename)) fs.unlinkSync(filename);
+          if(this.exists(filename)) {
+            fs.unlinkSync(filename);
+            console.log("rendering error, deleted "+filename);
+          }
           throw e;
         }
         else if(true || this.errorMode === "break") throw e; // default

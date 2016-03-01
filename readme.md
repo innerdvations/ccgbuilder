@@ -4,7 +4,6 @@ CCG Builder is a tool for using data from a spreadsheet or database to automatic
 
 CCG Builder uses EaselJS which in turn *requires* the Cairo graphics library to be installed on your system.
 
-*Currently very unstable and not feature complete* but most of the basic types are working well enough to use.
 
 ## Installation
 
@@ -14,41 +13,37 @@ Follow the instructions for installing Cairo on your system, then run `npm insta
 ## Usage
 There are two input objects required to build images.  A database or list of items that will be compiled (for example, data for each card in a game) and a layout which describes how to turn that data into a finalized image.  You will probably also have graphic assets (such as a standard card border, a unique piece of artwork for each card, icons, etc).
 
-An example that uses nearly every feature can be found in the examples directory.
+An example that uses nearly every feature can be found in the examples/all directory.
 
 Here's an example which loads a file called "layout.csv" as the instruction and "items.csv" as the database.
 ````
-var csv = require('csv');
-var fs = require('fs');
-var ccgbuilder = require('ccgbuilder');
-
-// synchronous csv parsing to simplify things
-function csvParseSync(csvData, options){
-    var csvParser = new csv.parse(options);
-    csvParser.write(csvData, true);
-    var parsedData = [];
-    var chunk;
-    while(chunk = csvParser.read()){
-        parsedData.push(chunk);
-    }
-    return parsedData;  
-}
-
-var layout = csvParseSync(fs.readFileSync(__dirname+'/layout.csv'), {columns:true});
-var items = csvParseSync(fs.readFileSync(__dirname+'/items.csv'), {columns:true});
-
-ccgbuilder.merge(layout, items);
+var ccgbuilder = require('../../ccgbuilder.js');
+ccgbuilder.merge('layout.csv', 'items.csv');
 ````
 
-## Layout
 
-If using csv import, ensure that the document is consistent, valid csv, and error-free and contains exactly the headers listed below in layout properties/headers.
+## Database Document / Items
 
-If you're passing in a JSON object of your own, make sure that it contains nothing but an array of objects with keys equal to the layout properties/headers listd below. For example:
+The database document must contain a header row with no blank or duplicate headers, and one column called 'filename' that contains the filename to use for that item for the final generated image.
+
+You can put whatever data you want in the document, just ensure that it is consistent, valid csv, and error-free.
+
+Alternatively, instead of a csv filename you can pass in a JSON object of your own.  Make sure that it contains nothing but an array of objects with keys equal to headers. For example:
 
 ````
 [{filename:"red.png", cardtext:"this one is red", textcolor:"#FF0000"},
 {filename:"blue.png", cardtext:"this one is blue", textcolor:"#0000FF"}]
+````
+
+## Layout Document
+
+Ensure that the document is consistent, valid csv, error-free and contains exactly the headers listed below in layout properties/headers.
+
+Alternatively, you can pass in a JSON object of your own. Make sure that it contains nothing but an array of objects with keys equal to the layout headers/keys listed below. The following is an incomplete example just to show the format, but is missing several keys/headers:
+
+````
+[{type:"canvas", width:"1000", height:"1000"},
+{type:"image", val:"test.png", x:0, y:0}]
 ````
 
 Here is an example Google Spreadsheet that can be used as a starting point for your own data.
@@ -63,7 +58,7 @@ The following headers must be present in the layout document.
 Must be one of the types listed below in 'Types'
 
 #### val
-The value to be used for this field.  If an image, this must resolve to a filename.  If text/textbox/html, this is the content that will be used.
+The value to be used for this field.  If an image, this must resolve to a filename.  If text/textbox, this is the content that will be used.
 
 #### x and y (two separate columns)
 Blank defaults to 0.
@@ -71,7 +66,7 @@ The x/y values relative to the canvas.
 
 #### width and height (two separate columns)
 Image: Blank defaults to width/height of the source image
-Text/Textbox/HTML: Blank defaults to the measured width/height of the text
+Text/Textbox: Blank defaults to the measured width/height of the text
 
 The width/height of the item.
 If specified for 'image' or 'text', the result will be stretched to this size.
@@ -194,26 +189,6 @@ Bitmap Text allows you to turn a text string into a sequence of images, such as 
 Font field should be the id of a spritesheet.
 
 [See EaselJS bitmapText for more info.](http://createjs.com/docs/easeljs/classes/BitmapText.html)
-
-#### square
-Not fully implemented. Better to just load premade images.  Use at your own risk.
-
-#### html
-Not yet implemented. Will allow simple html in a textbox by converting html to svg and placing it on canvas.
-
-
-## Database document / items
-
-If using csv import, the database document must contain a header row with no blank or duplicate headers, and one column called 'filename' that contains the filename to use for that item for the final generated image.
-
-You can put whatever data you want in the document, just ensure that it is consistent, valid csv, and error-free.
-
-If you're passing in a JSON object of your own, make sure that it contains nothing but an array of objects with keys equal to headers. For example:
-
-````
-[{filename:"red.png", cardtext:"this one is red", textcolor:"#FF0000"},
-{filename:"blue.png", cardtext:"this one is blue", textcolor:"#0000FF"}]
-````
 
 
 ## Known bugs

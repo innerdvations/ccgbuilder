@@ -10,7 +10,7 @@ var Shape = createjs.Shape;
 var Graphics = createjs.Graphics;
 
 var ccgbuilder = {
-   // errorMode "break" skips saving of images with problems, "continue" generates and saves them best as possible, "delete" skips saving and deletes any file with the given item's filename
+   // errorMode "break" skips saving of images with problems, "continue" generates and saves them best as possible even if there are errors, "delete" skips saving and also deletes existing file with the given item's filename
   errorMode: "break",
   layout_items:{},
   merge: function(layout, db) {
@@ -52,24 +52,21 @@ var ccgbuilder = {
     for(i in db) {
       try {
         var res = this.mergeOne(canvas_prop, objects, db[i]);
-        
-        return;
       }
       catch(e) {
         throw e;
-
-        console.log("Error: "+e);
       }
     }
   },
   isBlankStr: function(str) {
     return typeof str === "string" && str.trim() === "";
   },
-  propVal: function(field, item, prop, canvas, graphic) {
+  propVal: function(field, item, prop, canvas, graphic, skipCalc) {
     var val = prop[field];
     
     // check if it's a special val
     if(this.isSpecialVal(val)) {
+      if(skipCalc) return val;
       return this.calcSpecialVal(field, item, prop, canvas, graphic);
     }
     
@@ -424,6 +421,9 @@ var ccgbuilder = {
     // make the text wrap at width
     obj.lineWidth = width;
     
+    var textAlign = this.propVal("textAlign", item, prop, canvas, metrics);
+    obj.textAlign = textAlign;
+    
     // get the measured height
     metrics = {width:width, height:obj.getTransformedBounds().height};
     
@@ -431,39 +431,43 @@ var ccgbuilder = {
     var x = this.propNumVal("x", item, prop, canvas, metrics);
     var y =  this.propNumVal("y", item, prop, canvas, metrics);
     var regX = this.propNumVal("regX", item, prop, canvas, metrics);
+    var preregX = this.propVal("regX", item, prop, canvas, metrics, true);
     var regY =  this.propNumVal("regY", item, prop, canvas, metrics);
+    var preregY =  this.propVal("regY", item, prop, canvas, metrics, true);
     var offsetX = this.propNumVal("offsetX", item, prop, canvas, metrics);
     var offsetY =  this.propNumVal("offsetY", item, prop, canvas, metrics);
     var width = this.propNumVal("width", item, prop, canvas, metrics);
     var rotate = this.propNumVal("rotate", item, prop, canvas, metrics);
     //var options = this.propVal("options", item, prop, canvas, metrics).replace(/ /g, '').toLowerCase().split(",");
     
-    var textAlign = this.propVal("textAlign", item, prop, canvas, metrics);
-    obj.textAlign = textAlign;
+    // text alignment causes its own changes in regX calculation that we need to work around
+    if(textAlign === "center") {
+      console.log("preregx:"+preregX);
+      if(preregX == "left") {
+        //regX = 0;
+      }
+      else if(preregX == "center") {
+        regX = 0;
+      }
+      else if(preregX == "right") {
+       // regX = 0;
+      }
+    }
+    if(textAlign === "right") {
+      console.log("preregx:"+preregX);
+      if(preregX == "left") {
+        regX = -1 * width;
+      }
+      else if(preregX == "center") {
+        regX = -1 * width / 2;
+      }
+      else if(preregX == "right") {
+        regX = 0;
+      }
+    }
     
     obj.regX = regX;
     obj.regY = regY;
-    
-    // if height is empty and regY is special, we'll use our calculated height to do regY
-    // if(prop["height"] === "" && this.isSpecialVal(prop["regY"])) {
-    //   console.log("***** special prop");
-    //   if(prop["regY"] === "top") obj.regY = 0;
-    //   if(prop["regY"] === "center") obj.regY = obj.getTransformedBounds().height/2;
-    //   if(prop["regY"] === "bottom") obj.regY = obj.getTransformedBounds().height;
-    // }
-    // else {
-    //   obj.regY = regY;
-    // }
-    
-    // TODO: if a height is specified, reduce font size and redraw until it fits
-    //var height = this.propNumVal("height", item, prop, canvas, metrics);
-    //var rawHeight = this.propNumVal("height", item, prop, canvas, {width:0,height:0});
-    //if(height) {
-    //  if(obj.getTransformedBounds().height > height) {
-    //    console.log("Warning: text too big for box");
-    //    console.log(obj.getTransformedBounds().height + ">" + height);
-    //  }
-    //}
     
     obj.x = x;
     obj.y = y;
@@ -477,8 +481,8 @@ var ccgbuilder = {
     //obj.scaleY = scaleY * (height / graphic.height);
     //obj.scaleX = scaleX * (width / graphic.width);
 
-    console.log("drawing textbox "+val+" at "+obj.x+","+obj.y);
-    console.log(JSON.stringify({x:x,y:y,regX:regX,regY:regY,offsetX:offsetX,offsetY:offsetY}));
+    //console.log("drawing textbox "+val+" at "+obj.x+","+obj.y);
+    //console.log(JSON.stringify({x:x,y:y,regX:regX,regY:regY,offsetX:offsetX,offsetY:offsetY}));
 
     stage.addChild(obj);
   },

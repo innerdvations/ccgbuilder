@@ -21,9 +21,9 @@ An example that uses nearly every feature can be found in the examples/all direc
 `node ccgbuilder layout.csv items.csv`
 
 ### Module
-Here's an example which loads a file called "layout.csv" as the instruction and "items.csv" as the database.
+Here's an example which loads a file in the current directory called "layout.csv" as the instruction and "items.csv" as the database.
 ````
-var ccgbuilder = require('../../ccgbuilder.js');
+var ccgbuilder = require('ccgbuilder');
 ccgbuilder.merge('layout.csv', 'items.csv');
 ````
 

@@ -11,10 +11,16 @@ Follow the instructions for installing Cairo on your system, then run `npm insta
 
 
 ## Usage
+CCG Builder can either be used as a module or via command line.
+
 There are two input objects required to build images.  A database or list of items that will be compiled (for example, data for each card in a game) and a layout which describes how to turn that data into a finalized image.  You will probably also have graphic assets (such as a standard card border, a unique piece of artwork for each card, icons, etc).
 
 An example that uses nearly every feature can be found in the examples/all directory.
 
+### Command Line
+`node ccgbuilder layout.csv items.csv`
+
+### Module
 Here's an example which loads a file called "layout.csv" as the instruction and "items.csv" as the database.
 ````
 var ccgbuilder = require('../../ccgbuilder.js');

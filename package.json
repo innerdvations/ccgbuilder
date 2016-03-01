@@ -9,10 +9,10 @@
     "type": "git",
     "url": "https://github.com/innerdvations/ccgbuilder"
   },
-    "bugs": {
+  "bugs": {
     "url": "https://github.com/innerdvations/ccgbuilder/issues"
   },
-    "keywords": [
+  "keywords": [
     "csv",
     "composite",
     "graphics",
@@ -31,6 +31,7 @@
     "nodejs-dom": "0.0.2",
     "scribe-js": "^2.0.4",
     "shelljs": "^0.6.0",
-    "string_decoder": "^0.10.31"
+    "string_decoder": "^0.10.31",
+    "yargs": "^4.2.0"
   }
 }

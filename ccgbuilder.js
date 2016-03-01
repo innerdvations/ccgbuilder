@@ -13,9 +13,10 @@ var Shape = createjs.Shape;
 var Graphics = createjs.Graphics;
 
 var ccgbuilder = {
-   // errorMode "break" skips saving of images with problems, "continue" generates and saves them best as possible even if there are errors, "delete" skips saving and also deletes existing file with the given item's filename
-  errorMode: "break",
+   // errorMode "halt" skips saving of images with problems, "ignore" generates and saves them best as possible even if there are errors, "delete" skips saving and also deletes existing file with the given item's filename
+  errorMode: "halt",
   layout_items:{},
+  verbose:false,
   loadCSV: function(file) {
     filename = path.resolve(cwd, file);
     return this.csvParseSync(fs.readFileSync(filename,'utf8'), {columns:true});
@@ -446,8 +447,7 @@ var ccgbuilder = {
     var offsetY =  this.propNumVal("offsetY", item, prop, canvas, metrics);
     var width = this.propNumVal("width", item, prop, canvas, metrics);
     var rotate = this.propNumVal("rotate", item, prop, canvas, metrics);
-    //var options = this.propVal("options", item, prop, canvas, metrics).replace(/ /g, '').toLowerCase().split(",");
-    
+
     // text alignment right and center cause changes in regX calculation that we need to work around
     if(textAlign === "center") {
       if(preregX == "left") regX = -1 * width / 2;
@@ -516,7 +516,9 @@ var ccgbuilder = {
         }
       }
       catch(e) { // we'll catch and keep going so we can generate
-        if(this.errorMode === "continue") console.log("Error: "+e);
+        if(this.errorMode === "ignore") {
+          console.log("Error: "+e);
+        }
         else if(this.errorMode === "delete") {
           if(this.exists(filename)) {
             fs.unlinkSync(filename);
@@ -524,7 +526,7 @@ var ccgbuilder = {
           }
           throw e;
         }
-        else if(true || this.errorMode === "break") throw e; // default
+        else if(true || this.errorMode === "halt") throw e; // default
       }
     }
     
@@ -539,9 +541,66 @@ var ccgbuilder = {
     });
 
     pngstream.on('end', function(){
-      console.log('saved png ' + filename);
-    });
+      if(this.verbose) console.log('saved png ' + filename);
+    }.bind(this));
   },
 };
 
-module.exports = ccgbuilder;
+// if running as command line
+if(require.main === module) {
+  var files_exist = function(argv, options) {
+    var l = argv.l
+    if(!l) l = "layout.csv";
+    var i = argv.i;
+    if(!i) i = "items.csv";
+    
+    if(argv.p) {
+      l = argv.p + '-' + l;
+      i = argv.p + '-' + i;
+    }
+    
+    if(!ccgbuilder.exists(l)) throw "Error: File '"+l + "' does not exist.";
+    if(!ccgbuilder.exists(i)) throw "Error: File '"+i + "' does not exist.";
+    
+    return true;
+  }
+  
+  var argv = require('yargs')
+    .usage('Usage: $0 [options]')
+    .default({l:'layout.csv',i:'items.csv',p:'',e:'halt',q:false})
+    .alias('e', 'errorMode')
+    .choices('e', ['halt', 'ignore', 'delete'])
+    .describe('e', 'On error: halt processing, ignore and continue, or delete files matching output names')
+    .alias('q', 'quiet')
+    .describe('q', 'hide non-error log messages')
+    .alias('p', 'prefix')
+    .describe('p', 'Prefix for layout and item filenames')
+    .alias('l', 'layout')
+    .nargs('l', 1)
+    .describe('l', 'Layout csv filename')
+    .alias('i', 'item')
+    .alias('i', 'db')
+    .nargs('i', 1)
+    .describe('i', 'item db csv filename')
+    .help('h')
+    .alias('h', 'help')
+    .epilog('Copyright 2016 Benjamin Irvin')
+    .check(files_exist)
+    .argv;
+  
+  var l = argv.l;
+  var i = argv.i;
+  if(argv.p) {
+    l = argv.p + '-' + l;
+    i = argv.p + '-' + i;
+  }
+  
+  ccgbuilder.verbose = !argv.q;
+  ccgbuilder.errorMode = argv.e;
+  ccgbuilder.merge(l, i);
+}
+// if using as a module
+else {
+  module.exports = ccgbuilder;
+}
+ 

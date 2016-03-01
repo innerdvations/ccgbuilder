@@ -1,6 +1,6 @@
 {
   "name": "ccgbuilder",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CSV Composite Graphic Builder for NodeJS",
   "author": "Benjamin Irvin <ben@innerdvations.com>",
   "license": "MIT",

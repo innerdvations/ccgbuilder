@@ -7,7 +7,7 @@ CCG Builder uses EaselJS which in turn *requires* the Cairo graphics library to 
 
 ## Installation
 
-Follow the instructions for installing Cairo on your system, then run `npm install https://github.com/innerdvations/ccgbuilder.git`
+Follow the instructions for installing Cairo on your system, then run `npm install ccgbuilder`
 
 
 ## Usage

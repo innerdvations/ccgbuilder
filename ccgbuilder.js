@@ -1,3 +1,6 @@
+#! /usr/bin/env node
+'use strict';
+
 var Canvas = require('canvas');
 var fs = require('fs');
 var StringDecoder = require('string_decoder').StringDecoder;
@@ -18,7 +21,7 @@ var ccgbuilder = {
   layout_items:{},
   verbose:false,
   loadCSV: function(file) {
-    filename = path.resolve(cwd, file);
+    var filename = path.resolve(cwd, file);
     return this.csvParseSync(fs.readFileSync(filename,'utf8'), {columns:true});
   },
   csvParseSync: function(data, options) {
